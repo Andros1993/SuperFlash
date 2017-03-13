@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -14,12 +15,17 @@ import android.widget.Toast;
 
 import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MainActivity extends Activity implements View.OnClickListener {
 
     private MaterialAnimatedSwitch aSwitch = null;
     private Camera camera = null;
-    private Camera.Parameters parameters;
+    private Camera.Parameters parameters = null;
     private String[] permissions = {Manifest.permission.CAMERA};
+    private Handler handler = null;
+    private Timer timer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +51,31 @@ public class MainActivity extends Activity implements View.OnClickListener {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.CAMERA},
                     200);
+        }else {
+            initLight();
         }
+    }
+
+    /**
+     * init light
+     */
+    private void initLight() {
+        aSwitch.setOnClickListener(this);
+        camera = Camera.open();
+        parameters = camera.getParameters();
+        handler = new Handler();
+        timer = new Timer();
+
+//        flicker();
+    }
+
+    private void flicker() {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                switchFlash();
+            }
+        },1000,100);
     }
 
     @Override
@@ -53,9 +83,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode == 200){
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                aSwitch.setOnClickListener(this);
-                camera = Camera.open();
-                parameters = camera.getParameters();
+                initLight();
             }else{
                 Toast.makeText(MainActivity.this, "请允许权限后使用~", Toast.LENGTH_LONG).show();
                 finish();
@@ -67,12 +95,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.mas:
-                if (parameters.getFlashMode() == Camera.Parameters.FLASH_MODE_TORCH) {
-                    closeLight();
-                } else {
-                    openLight();
-                }
+                switchFlash();
                 break;
+        }
+    }
+
+    /**
+     * switch flash
+     */
+    private void switchFlash() {
+        if (parameters.getFlashMode() == Camera.Parameters.FLASH_MODE_TORCH) {
+            closeLight();
+        } else {
+            openLight();
         }
     }
 

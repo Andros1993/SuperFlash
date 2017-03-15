@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="flashlight" type="id"/>
+    <item name="screenlight" type="id"/>
+</resources>

@@ -2,4 +2,5 @@
 <resources>
     <item name="flashlight" type="id"/>
     <item name="screenlight" type="id"/>
+    <item name="flashlight_view" type="id"/>
 </resources>

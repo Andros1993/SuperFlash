@@ -77,22 +77,25 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
 
-        switch (view.getId()) {
-            case R.id.flashlight:
+        if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+            switch (view.getId()) {
+                case R.id.flashlight:
 
-                revealView(motionEvent.getRawX(), motionEvent.getRawY(), BTN_FLASHLIGHT_FLAG, flashColor);
-                initLight();
-                break;
-            case R.id.screenlight:
-                revealView(motionEvent.getRawX(), motionEvent.getRawY(), BTN_SCREENLIGHT_FLAG, screenColor);
+                    revealView(motionEvent.getRawX(), motionEvent.getRawY(), BTN_FLASHLIGHT_FLAG, flashColor);
+                    initLight();
+                    flashLightView.setVisibility(View.VISIBLE);
+                    break;
+                case R.id.screenlight:
+                    revealView(motionEvent.getRawX(), motionEvent.getRawY(), BTN_SCREENLIGHT_FLAG, screenColor);
 
-                break;
-            default:
-                break;
+                    break;
+                default:
+                    break;
+            }
+
+            btnDown.setVisibility(View.GONE);
+            btnUp.setVisibility(View.GONE);
         }
-        flashLightView.setVisibility(View.VISIBLE);
-        btnDown.setVisibility(View.GONE);
-        btnUp.setVisibility(View.GONE);
 
 
         return false;
@@ -162,7 +165,8 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
                 flashLightView.setVisibility(View.GONE);
                 btnDown.setVisibility(View.VISIBLE);
                 btnUp.setVisibility(View.VISIBLE);
-                switchFlash();
+//                switchFlash();
+                closeLight();
                 releaseCamera();
             }
 
@@ -180,27 +184,10 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
         return anim;
     }
 
-
-//
-//    /**
-//     * check permission
-//     */
-////    private void checkPermission() {
-////        if (PackageManager.PERMISSION_GRANTED != ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)) {
-////            ActivityCompat.requestPermissions(this,
-////                    new String[]{Manifest.permission.CAMERA},
-////                    200);
-////        }else {
-////            initLight();
-////        }
-////    }
-//
-//    /**
-//     * init light
-//     */
     private void initLight() {
         aSwitch.setOnClickListener(this);
         PackageManager pm = getPackageManager();
+        //check the device whether to support camera
         if (!pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)
                 && !pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
             Toast.makeText(this,"sorry,this device do not support the app.",Toast.LENGTH_LONG).show();
@@ -212,20 +199,6 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 
     }
 
-//
-////    @Override
-////    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-////        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-////        if(requestCode == 200){
-////            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-////                initLight();
-////            }else{
-////                Toast.makeText(MainActivity.this, "请允许权限后使用~", Toast.LENGTH_LONG).show();
-////                finish();
-////            }
-////        }
-////    }
-//
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -260,6 +233,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
     private void closeLight() {
         parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
         camera.setParameters(parameters);
+        aSwitch.toggle();
     }
 
     @Override

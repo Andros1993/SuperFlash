@@ -5,6 +5,7 @@ import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Camera;
@@ -21,6 +22,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -29,10 +31,13 @@ import android.widget.Toast;
 import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.umeng.analytics.MobclickAgent;
 
+import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
+import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar.OnProgressChangeListener;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends Activity implements OnTouchListener, OnClickListener {
+public class MainActivity extends Activity implements OnTouchListener, OnClickListener, OnProgressChangeListener {
 
     private Button btnUp, btnDown;
     private LinearLayout viewGroup;
@@ -42,14 +47,16 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
     private final String screenColor = "#ffffff";
     private final String defaultColor = "#CCEED0";
     private MaterialAnimatedSwitch aSwitch = null;
+    private DiscreteSeekBar seekBar = null;
     private Camera camera = null;
     private Camera.Parameters parameters = null;
-    private View flashLightView;
+    private View flashLightView,screenlightView;
     private int[] xyBuf = {0,0};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
         initView();
         initData();
@@ -61,11 +68,16 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
         btnDown = (Button) findViewById(R.id.flashlight);
         btnUp = (Button) findViewById(R.id.screenlight);
         viewGroup = (LinearLayout) findViewById(R.id.activity_main);
+        seekBar = (DiscreteSeekBar) findViewById(R.id.screenlightbar);
+        aSwitch = (MaterialAnimatedSwitch) findViewById(R.id.mas);
+        flashLightView = findViewById(R.id.flashlight_view);
+        screenlightView = findViewById(R.id.screenlight_view);
     }
 
     private void initData() {
-        aSwitch = (MaterialAnimatedSwitch) findViewById(R.id.mas);
-        flashLightView = findViewById(R.id.flashlight_view);
+        seekBar.setOnProgressChangeListener(this);
+
+
     }
 
     public void initListener() {
@@ -84,10 +96,12 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
                     revealView(motionEvent.getRawX(), motionEvent.getRawY(), BTN_FLASHLIGHT_FLAG, flashColor);
                     initLight();
                     flashLightView.setVisibility(View.VISIBLE);
+                    screenlightView.setVisibility(View.GONE);
                     break;
                 case R.id.screenlight:
                     revealView(motionEvent.getRawX(), motionEvent.getRawY(), BTN_SCREENLIGHT_FLAG, screenColor);
-
+                    flashLightView.setVisibility(View.GONE);
+                    screenlightView.setVisibility(View.VISIBLE);
                     break;
                 default:
                     break;
@@ -288,5 +302,26 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
+        setLight(this,(value * 255)/100);
+    }
+
+    @Override
+    public void onStartTrackingTouch(DiscreteSeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
+
+    }
+
+    private void setLight(Activity context, int brightness) {
+        WindowManager.LayoutParams lp = context.getWindow().getAttributes();
+        lp.screenBrightness = Float.valueOf(brightness) * (1f / 255f);
+        context.getWindow().setAttributes(lp);
     }
 }

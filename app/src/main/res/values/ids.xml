@@ -3,4 +3,6 @@
     <item name="flashlight" type="id"/>
     <item name="screenlight" type="id"/>
     <item name="flashlight_view" type="id"/>
+    <item name="screenlightbar" type="id"/>
+    <item name="screenlight_view" type="id"/>
 </resources>

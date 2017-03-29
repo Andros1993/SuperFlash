@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:id="@id/screenlight_view"
               android:orientation="vertical"
               android:visibility="gone"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+                android:gravity="center_vertical">
+    <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+        android:id="@id/screenlightbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:dsb_min="1"
+        app:dsb_max="100"
+        />
 
 
-
-</LinearLayout>
+</RelativeLayout>

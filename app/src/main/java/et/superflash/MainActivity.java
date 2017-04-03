@@ -10,11 +10,14 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.os.Handler;
+import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
 import android.support.annotation.ColorRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 //import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -107,9 +110,15 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
                     screenlightView.setVisibility(View.VISIBLE);
                     if(layoutParams == null){
                         layoutParams = getWindow().getAttributes();
-                        screenBuf = layoutParams.screenBrightness;
                     }
-                    seekBar.setProgress((int)(layoutParams.screenBrightness / 255f) * 100);
+//                    screenBuf = layoutParams.screenBrightness;
+                    try {
+                        screenBuf =Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+                    } catch (SettingNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    Log.d("Et","setProgress:" + (int)(screenBuf * 100/ 255) );
+                    seekBar.setProgress((int)(screenBuf * 100/ 255) );
                     break;
                 default:
                     break;
@@ -137,34 +146,6 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
         anim.setDuration(1000);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
         anim.start();
-//        anim.addListener(new AnimatorListener() {
-//            @Override
-//            public void onAnimationStart(Animator animator) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationEnd(Animator animator) {
-//                switch (flag) {
-//                    case BTN_FLASHLIGHT_FLAG:
-//                        break;
-//                    case BTN_SCREENLIGHT_FLAG:
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-//
-//            @Override
-//            public void onAnimationCancel(Animator animator) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat(Animator animator) {
-//
-//            }
-//        });
         return anim;
     }
 
@@ -253,7 +234,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
      * close light
      */
     private void closeLight() {
-        if(parameters == null){
+        if(parameters == null || camera == null){
             return;
         }
         parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
@@ -308,6 +289,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
                 }else if(screenlightView.getVisibility() == View.VISIBLE){
                     backFromFlashAnimation(screenlightView);
                     layoutParams.screenBrightness = screenBuf;
+                    Log.d("Et","set:" + screenBuf);
                     getWindow().setAttributes(layoutParams);
                     return true;
                 }
@@ -322,6 +304,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 
     @Override
     public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
+        Log.d("Et","setting screenBrightness : " + (value * 255)/100);
         setLight((value * 255)/100);
     }
 
@@ -336,6 +319,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
     }
 
     private void setLight(int brightness) {
+        Log.d("Et","setLight : " + Float.valueOf(brightness) * (1f / 255f));
         layoutParams.screenBrightness = Float.valueOf(brightness) * (1f / 255f);
         getWindow().setAttributes(layoutParams);
     }

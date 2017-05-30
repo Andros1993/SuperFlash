@@ -5,4 +5,5 @@
     <item name="flashlight_view" type="id"/>
     <item name="screenlightbar" type="id"/>
     <item name="screenlight_view" type="id"/>
+    <item name="iv_color_picker" type="id"/>
 </resources>

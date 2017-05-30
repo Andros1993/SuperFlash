@@ -1,22 +1,16 @@
 package et.superflash;
 
-import android.Manifest;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.app.Activity;
-import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Camera;
-import android.os.Handler;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
-import android.support.annotation.ColorRes;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-//import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -25,7 +19,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
@@ -36,12 +29,15 @@ import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.umeng.analytics.MobclickAgent;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
-import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar.OnProgressChangeListener;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import et.superflash.module.KeyConstant;
+import et.superflash.view.ColorPicker;
+import et.superflash.view.ColorPickerDialog;
 
-public class MainActivity extends Activity implements OnTouchListener, OnClickListener, OnProgressChangeListener {
+//import android.support.v7.app.AppCompatActivity;
+
+
+public class MainActivity extends Activity implements OnTouchListener, OnClickListener, DiscreteSeekBar.OnProgressChangeListener, ColorPicker.OnColorSelectListener {
 
     private Button btnUp, btnDown;
     private LinearLayout viewGroup;
@@ -58,6 +54,8 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
     private int[] xyBuf = {0,0};
     private LayoutParams layoutParams;
     private float screenBuf = 0f;
+
+    private ColorPickerDialog mDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,15 +79,14 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
     }
 
     private void initData() {
-        seekBar.setOnProgressChangeListener(this);
-
 
     }
 
     public void initListener() {
         btnUp.setOnTouchListener(this);
         btnDown.setOnTouchListener(this);
-
+        seekBar.setOnProgressChangeListener(this);
+        screenlightView.setOnClickListener(this);
     }
 
     @Override
@@ -119,6 +116,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
                     }
                     Log.d("Et","setProgress:" + (int)(screenBuf * 100/ 255) );
                     seekBar.setProgress((int)(screenBuf * 100/ 255) );
+                    checkFirstTimeOpen();
                     break;
                 default:
                     break;
@@ -130,6 +128,19 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
 
 
         return false;
+    }
+
+    /**
+     * check whether the user is the first tiem open,need to tip user can chuang the screen color
+     */
+    private void checkFirstTimeOpen() {
+
+        SharedPreferences setting = getSharedPreferences(KeyConstant.USER_DATA_SP, 0);
+        Boolean user_first = setting.getBoolean(KeyConstant.USER_FIRST_TIME_OPEN,true);
+        if(user_first){//first time open
+            setting.edit().putBoolean(KeyConstant.USER_FIRST_TIME_OPEN, false).commit();
+            Toast.makeText(MainActivity.this, "点击屏幕可以改变颜色哦~", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void revealView(float x, float y, int flag, String color) {
@@ -207,6 +218,17 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
         switch (view.getId()) {
             case R.id.mas:
                 switchFlash();
+                break;
+            case R.id.screenlight_view:
+//                Toast.makeText(this,"clicked",Toast.LENGTH_SHORT).show();
+
+                if(mDialog == null){
+                    mDialog = new ColorPickerDialog(this);
+                }
+                mDialog.setPickerOnListener(this);
+                mDialog.show();
+                break;
+            default:
                 break;
         }
     }
@@ -322,5 +344,10 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
         Log.d("Et","setLight : " + Float.valueOf(brightness) * (1f / 255f));
         layoutParams.screenBrightness = Float.valueOf(brightness) * (1f / 255f);
         getWindow().setAttributes(layoutParams);
+    }
+
+    @Override
+    public void onColorSelect(int color) {
+        screenlightView.setBackgroundColor(color);
     }
 }

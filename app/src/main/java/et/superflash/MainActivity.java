@@ -114,7 +114,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
                     } catch (SettingNotFoundException e) {
                         e.printStackTrace();
                     }
-                    Log.d("Et","setProgress:" + (int)(screenBuf * 100/ 255) );
+//                    Log.d("Et","setProgress:" + (int)(screenBuf * 100/ 255) );
                     seekBar.setProgress((int)(screenBuf * 100/ 255) );
                     checkFirstTimeOpen();
                     break;
@@ -139,7 +139,7 @@ public class MainActivity extends Activity implements OnTouchListener, OnClickLi
         Boolean user_first = setting.getBoolean(KeyConstant.USER_FIRST_TIME_OPEN,true);
         if(user_first){//first time open
             setting.edit().putBoolean(KeyConstant.USER_FIRST_TIME_OPEN, false).commit();
-            Toast.makeText(MainActivity.this, "点击屏幕可以改变颜色哦~", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, R.string.color_tips, Toast.LENGTH_LONG).show();
         }
     }
 

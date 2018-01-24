@@ -5,15 +5,16 @@ android {
     buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "et.superflash"
-        minSdkVersion 21
+        minSdkVersion 16
         targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            debuggable false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -32,9 +33,7 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:21.+'
     testCompile 'junit:junit:4.12'
-
     compile 'com.github.glomadrian:MaterialAnimatedSwitch:1.1@aar'
     compile 'com.umeng.analytics:analytics:latest.integration'
-
     compile 'org.adw.library:discrete-seekbar:1.0.1'
 }

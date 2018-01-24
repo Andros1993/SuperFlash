@@ -3,6 +3,8 @@ package et.superflash.view;
 import android.app.AlertDialog;
 import android.content.Context;
 
+import et.superflash.R;
+
 /**
  * Created by Et on 2017/5/29.
  */
@@ -16,7 +18,7 @@ public class ColorPickerDialog {
     public ColorPickerDialog(final Context context) {
         this.mContext = context;
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.CustomDialog);
         mPicker = new ColorPicker(context);
         builder.setView(mPicker);
 //        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
